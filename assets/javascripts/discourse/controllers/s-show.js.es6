@@ -3,9 +3,11 @@ import Subscription from "discourse/plugins/discourse-subscriptions/discourse/mo
 import Transaction from "discourse/plugins/discourse-subscriptions/discourse/models/transaction";
 import I18n from "I18n";
 import { not } from "@ember/object/computed";
+import discourseComputed from "discourse-common/utils/decorators";
 
 export default Controller.extend({
   selectedPlan: null,
+  promoCode: null,
   isAnonymous: not("currentUser"),
 
   init() {
@@ -23,6 +25,15 @@ export default Controller.extend({
     bootbox.alert(I18n.t(`discourse_subscriptions.${path}`));
   },
 
+  @discourseComputed("model.product.repurchaseable", "model.product.subscribed")
+  canPurchase(repurchaseable, subscribed) {
+    if (!repurchaseable && subscribed) {
+      return false;
+    }
+
+    return true;
+  },
+
   createSubscription(plan) {
     return this.stripe.createToken(this.get("cardElement")).then((result) => {
       if (result.error) {
@@ -32,6 +43,7 @@ export default Controller.extend({
         const subscription = Subscription.create({
           source: result.token.id,
           plan: plan.get("id"),
+          promo: this.promoCode,
         });
 
         return subscription.save();

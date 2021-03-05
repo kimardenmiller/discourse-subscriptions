@@ -12,7 +12,8 @@ module DiscourseSubscriptions
           id: "prodct_23456",
           name: "Very Special Product",
           metadata: {
-            description: "Many people listened to my phone call with the Ukrainian President while it was being made"
+            description: "Many people listened to my phone call with the Ukrainian President while it was being made",
+            repurchaseable: false
           },
           otherstuff: true,
         }
@@ -48,7 +49,8 @@ module DiscourseSubscriptions
             "id" => "prodct_23456",
             "name" => "Very Special Product",
             "description" => PrettyText.cook("Many people listened to my phone call with the Ukrainian President while it was being made"),
-            "subscribed" => false
+            "subscribed" => false,
+            "repurchaseable" => false,
           }])
         end
 
@@ -82,7 +84,8 @@ module DiscourseSubscriptions
              "id" => "prodct_23456",
              "name" => "Very Special Product",
              "description" => PrettyText.cook("Many people listened to my phone call with the Ukrainian President while it was being made"),
-             "subscribed" => false
+             "subscribed" => false,
+             "repurchaseable" => false
            },
            "plans" => [
              { "currency" => "aud", "id" => "plan_id123", "recurring" => { "interval" => "year" }, "unit_amount" => 1220 },
@@ -128,7 +131,8 @@ module DiscourseSubscriptions
               customer: 'cus_1234',
               items: [ price: 'plan_1234' ],
               metadata: { user_id: user.id, username: user.username_lower },
-              trial_period_days: 0
+              trial_period_days: 0,
+              promotion_code: nil
             ).returns(status: 'active', customer: 'cus_1234')
 
             expect {
@@ -169,6 +173,63 @@ module DiscourseSubscriptions
             expect {
               post "/s/create.json", params: { plan: 'plan_1234', source: 'tok_1234' }
             }.to change { DiscourseSubscriptions::Customer.count }
+          end
+
+          context "with promo code" do
+            before do
+              ::Stripe::PromotionCode.expects(:list).with({ code: '123' }).returns(
+                data: [{
+                  id: 'promo123',
+                  coupon: { id: 'c123' }
+                }]
+              )
+            end
+
+            it "applies promo code to recurring subscription" do
+              ::Stripe::Price.expects(:retrieve).returns(
+                type: 'recurring',
+                product: 'product_12345',
+                metadata: {
+                  group_name: 'awesome',
+                  trial_period_days: 0
+                }
+              )
+
+              ::Stripe::Subscription.expects(:create).with(
+                customer: 'cus_1234',
+                items: [ price: 'plan_1234' ],
+                metadata: { user_id: user.id, username: user.username_lower },
+                trial_period_days: 0,
+                promotion_code: 'promo123'
+              ).returns(status: 'active', customer: 'cus_1234')
+
+              post "/s/create.json", params: { plan: 'plan_1234', source: 'tok_1234', promo: '123' }
+
+            end
+
+            it "applies promo code to one time purchase" do
+              ::Stripe::Price.expects(:retrieve).returns(
+                type: 'one_time',
+                product: 'product_12345',
+                metadata: {
+                  group_name: 'awesome'
+                }
+              )
+
+              ::Stripe::InvoiceItem.expects(:create).with(customer: 'cus_1234', price: 'plan_1234', discounts: [{ coupon: 'c123' }])
+
+              ::Stripe::Invoice.expects(:create).returns(status: 'open', id: 'in_123')
+
+              ::Stripe::Invoice.expects(:finalize_invoice).returns(id: 'in_123', status: 'open', payment_intent: 'pi_123')
+
+              ::Stripe::Invoice.expects(:retrieve).returns(id: 'in_123', status: 'open', payment_intent: 'pi_123')
+
+              ::Stripe::PaymentIntent.expects(:retrieve).returns(status: 'successful')
+
+              ::Stripe::Invoice.expects(:pay).returns(status: 'paid', customer: 'cus_1234')
+
+              post '/s/create.json', params: { plan: 'plan_1234', source: 'tok_1234', promo: '123' }
+            end
           end
         end
 

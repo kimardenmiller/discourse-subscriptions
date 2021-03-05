@@ -12,7 +12,7 @@
     </p>
   </div>
   <div class="section-column">
-    {{#unless model.product.subscribed}}
+    {{#if canPurchase}}
       <h2>
         {{i18n 'discourse_subscriptions.subscribe.card.title'}}
       </h2>
@@ -33,6 +33,9 @@
       {{else if isAnonymous}}
         {{login-required}}
       {{else}}
+        <div class='promo-code'>
+          {{input type="text" name="promo_code" placeholderKey="discourse_subscriptions.subscribe.promo_code" value=promoCode}}
+        </div>
 
         {{d-button
           disabled=loading
@@ -42,6 +45,6 @@
         }}
       {{/if}}
 
-    {{/unless}}
+    {{/if}}
   </div>
 </div>

@@ -58,6 +58,7 @@ he:
         subscriptions:
           id: מזהה מינוי
           status: מצב
+          discounted: בהנחה
           renews: חידושים
           created_at: נוצר
           cancel: ביטול
@@ -67,12 +68,14 @@ he:
               confirm: לבטל את המינוי הזה?
       subscribe:
         title: הרשמה
+        view_past: הצגת רכישות עבר
         no_products: אין מוצרים זמינים.
         unauthenticated: עליך להיכנס או ליצור חשבון כדי להירשם.
         card:
           title: תשלום
         customer:
           title: פרטי הלקו
+        promo_code: קופון
         buttons:
           subscribe: הרשמה
         purchased: נרכשה
@@ -114,6 +117,8 @@ he:
             plan_help: יצירת תכנית תשלום לרישום לקוחות למוצר הזה.
             description: תיאור
             description_help: מתאר את מוצר המינוי שלך.
+            repurchaseable: ניתן לרכישה חוזרת?
+            repurchase_help: לאפשר לרכוש מוצר ותכניות נלוות מספר פעמים
             active: פעיל
             active_help: יש לכבות את זה עד שהמוצר שלך מוכן לקבל לקוחות.
             created_at: נוצר
@@ -143,6 +148,15 @@ he:
             active: פעיל
             created_at: נוצר
             recurring: תכנית מתחדשת?
+        coupons:
+          title: שוברים
+          code: קוד שובר
+          discount: הנחה
+          times_redeemed: מספר הסליקות
+          active: פעיל?
+          actions: פעולות
+          create: יצירת שובר
+          promo_code: קוד שובר (בלתי תלוי רישיות)
         subscriptions:
           title: מינויים
           subscription:

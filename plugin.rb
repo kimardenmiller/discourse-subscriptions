@@ -8,7 +8,7 @@
 
 enabled_site_setting :discourse_subscriptions_enabled
 
-gem 'stripe', '5.22.0'
+gem 'stripe', '5.29.0'
 
 register_asset "stylesheets/common/main.scss"
 register_asset "stylesheets/common/layout.scss"
@@ -35,6 +35,7 @@ Discourse::Application.routes.append do
   get '/admin/plugins/discourse-subscriptions/subscriptions' => 'admin/plugins#index', constraints: AdminConstraint.new
   get '/admin/plugins/discourse-subscriptions/plans' => 'admin/plugins#index', constraints: AdminConstraint.new
   get '/admin/plugins/discourse-subscriptions/plans/:plan_id' => 'admin/plugins#index', constraints: AdminConstraint.new
+  get '/admin/plugins/discourse-subscriptions/coupons' => 'admin/plugins#index', constraints: AdminConstraint.new
   get 'u/:username/billing' => 'users#show', constraints: { username: USERNAME_ROUTE_FORMAT }
   get 'u/:username/billing/:id' => 'users#show', constraints: { username: USERNAME_ROUTE_FORMAT }
 end
@@ -44,7 +45,7 @@ load File.expand_path('app/controllers/concerns/stripe.rb', __dir__)
 load File.expand_path('app/controllers/concerns/group.rb', __dir__)
 
 after_initialize do
-  ::Stripe.api_version = "2019-12-03"
+  ::Stripe.api_version = "2020-08-27"
 
   ::Stripe.set_app_info(
     'Discourse Subscriptions',

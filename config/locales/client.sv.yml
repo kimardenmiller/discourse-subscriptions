@@ -58,6 +58,7 @@ sv:
         subscriptions:
           id: Prenumerations-ID
           status: Status
+          discounted: Rabatterad
           renews: Förnyar
           created_at: Skapad
           cancel: avbryt
@@ -67,12 +68,14 @@ sv:
               confirm: Är du säker på att du vill avbryta denna prenumeration?
       subscribe:
         title: Prenumerera
+        view_past: Visa tidigare köp
         no_products: Det finns för tillfället inga produkter tillgängliga.
         unauthenticated: Logga in eller skapa ett konto för att prenumerera.
         card:
           title: Betalning
         customer:
           title: Kunddetaljer
+        promo_code: Kupong
         buttons:
           subscribe: Prenumerera
         purchased: Köpt
@@ -114,6 +117,8 @@ sv:
             plan_help: Skapa en prislista för prenumeranter för denna produkt.
             description: Beskrivning
             description_help: Detta beskriver din prenumerationsprodukt.
+            repurchaseable: Återköpbar?
+            repurchase_help: Tillåt flera köp av produkten och tillhörande planer
             active: Aktiv
             active_help: Avaktivera denna tills din produkt är redo för kunder.
             created_at: Skapad
@@ -143,6 +148,15 @@ sv:
             active: Aktiv
             created_at: Skapad
             recurring: Återkommande plan?
+        coupons:
+          title: Rabattkoder
+          code: Kampanjkod
+          discount: Rabatt
+          times_redeemed: Gånger inlösta
+          active: Aktiv?
+          actions: Åtgärder
+          create: Skapa rabattkod
+          promo_code: Kampanjkod (skiftlägesokänslig)
         subscriptions:
           title: Prenumerationer
           subscription:

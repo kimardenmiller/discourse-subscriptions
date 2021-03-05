@@ -58,6 +58,7 @@ ru:
         subscriptions:
           id: ID подписки
           status: Статус
+          discounted: Со скидкой
           renews: Продлить
           created_at: Создано
           cancel: Отменить
@@ -67,11 +68,14 @@ ru:
               confirm: Вы действительно хотите отменить эту подписку?
       subscribe:
         title: Подписаться
+        view_past: Посмотреть прошлые покупки
         no_products: В настоящее время нет доступных предложений.
+        unauthenticated: Войдите в систему или создайте учетную запись, чтобы подписаться.
         card:
           title: Оплата
         customer:
           title: Данные клиента
+        promo_code: Купон
         buttons:
           subscribe: Подписаться
         purchased: Оплачено
@@ -113,6 +117,8 @@ ru:
             plan_help: Создайте тарифный план, чтобы подписать клиентов на этот продукт.
             description: Описание
             description_help: Описание подписки.
+            repurchaseable: Многократная покупка?
+            repurchase_help: Разрешить многократную покупку продукта и связанных с ним тарифных планов
             active: Активный
             active_help: Отключите эту настройку, пока ваш продукт не будет готов для потребителей.
             created_at: Создано
@@ -142,6 +148,15 @@ ru:
             active: Активный
             created_at: Создано
             recurring: Повторяющийся план?
+        coupons:
+          title: Купоны
+          code: Промокод
+          discount: Скидка
+          times_redeemed: Время погашения
+          active: Активный?
+          actions: Действия
+          create: Создать купон
+          promo_code: Промокод (без учета регистра)
         subscriptions:
           title: Подписки
           subscription:
