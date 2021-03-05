@@ -26,6 +26,7 @@ task 'subscriptions:pro_con' => :environment do
 end
 
 def get_stripe_prod
+  # todo needs paganation to get more than default 10
   puts 'Getting products from Stripe API'
   Stripe::Product.list
 end
@@ -47,6 +48,7 @@ end
 def import_subs
   puts 'Importing subscriptions'
   product_ids = DiscourseSubscriptions::Product.all.pluck(:external_id)
+  # todo needs paganation to get more than default 10
   customers = Stripe::Customer.list
   puts "customers first 5"
   puts customers.to_a[0..5]
@@ -54,6 +56,8 @@ def import_subs
   puts "customers :data first 5"
   puts customers[:data].to_a[0..5]
 
+  # todo needs paganation to get more than default 10
+  # todo only pull active subscriptions
   subscriptions = Stripe::Subscription.list
   subscriptions_for_products = subscriptions[:data].select { |sub| product_ids.include?(sub[:items][:data][0][:price][:product]) }
 
