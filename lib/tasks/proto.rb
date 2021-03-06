@@ -3,7 +3,7 @@
 require 'stripe'
 require 'highline/import'
 
-puts 'Begin proto'
+# puts 'Begin proto'
 
 # desc 'Import data from Procourse Memberships'
 # task 'subscriptions:pro_con' => :environment do
@@ -30,20 +30,18 @@ customers = Stripe::Customer.list
 # puts "customers :data first 5"
 # puts customers[:data].to_a[0..0]
 
-puts "customer"
 cust_ret = Stripe::Customer.retrieve('cus_J3PTQx9xS8HWnd')
-p cust_ret[:description].to_i
+# p "customer"
+# p cust_ret[:description].to_i
 # p cust_ret[:metadata]
 
-puts "customer id"
 cust_data = customers[:data]
+# p "customer id"
 # puts cust_data[0][:description]
 
 cust_data.each do |customer|
   # p customer[:description].to_i
 end
-
-all_subscriptions = []
 
 # puts 'customer match'
 # user_id = customers[:data].find('cus_J3PTQx9xS8HWnd')
@@ -68,17 +66,29 @@ stripe_subs = subscriptions[:data]
 # end
 
 def get_all_subscriptions(starting_after:nil )
-  subscriptions = Stripe::Subscription.list
-  all_subscriptions = subscriptions[:data]
+  
+  all_subscriptions = []
 
   loop do
-    break if subscriptions[:has_more] == false 
-    all_subscriptions << Stripe::Subscription.list({starting_after: starting_after})
+    subscriptions = Stripe::Subscription.list({starting_after: starting_after, status: 'active'})
+
+    all_subscriptions += subscriptions[:data]
+
+    break if subscriptions[:has_more] == false
+
+    starting_after = subscriptions[:data].last["id"]
+    # p subscriptions[:data].last["id"]
 
   end
 
-  if starting_after
-    all_subscriptions << Stripe::Subscription.list({starting_after: starting_after})
-  end
-
+  all_subscriptions
 end
+
+all_subscriptions = get_all_subscriptions
+
+# p 'all_subscriptions'
+# all_subscriptions.each do |sub|
+#   p sub[:id].to_s
+# end
+
+puts 'Total Active Subscriptions to Import: ' + all_subscriptions.length.to_s
