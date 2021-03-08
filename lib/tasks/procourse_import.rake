@@ -6,7 +6,6 @@ require 'highline/import'
 desc 'Import data from Procourse Memberships'
 task 'subscriptions:procourse_import' => :environment do
   setup_api
-  puts ' Stripe sign on complete'
   products = get_procourse_stripe_products
   products_to_import = []
 
@@ -14,13 +13,10 @@ task 'subscriptions:procourse_import' => :environment do
     confirm_import = ask("Do you wish to import product #{product[:name]} (id: #{product[:id]}): (y/N)")
     next if confirm_import.downcase != 'y'
     products_to_import << product
-    print 'products_to_import:'
-    puts products_to_import.join(", ")
   end
 
   import_procourse_products(products_to_import)
-  puts 'Done importing products'
-  import_procourse_subs
+  import_subscriptions
 end
 
 def get_procourse_stripe_products(starting_after:nil )
@@ -95,7 +91,7 @@ def import_procourse_products(products)
   end
 end
 
-def import_procourse_subs
+def import_subscriptions
   puts 'Importing Procourse  subscriptions'
   product_ids = DiscourseSubscriptions::Product.all.pluck(:external_id)
 

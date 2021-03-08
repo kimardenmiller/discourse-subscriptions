@@ -3,11 +3,11 @@
 require 'stripe'
 require 'highline/import'
 
-#
-# def setup_api
-#   api_key = ENV["STRIPE_KEY"]
-#   Stripe.api_key = api_key
-# end
+
+def setup_api
+  api_key = ENV["STRIPE_KEY"]
+  Stripe.api_key = api_key
+end
 
 def get_procourse_stripe_products(starting_after:nil )
   puts 'Getting products from Stripe API'
