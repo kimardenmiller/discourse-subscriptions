@@ -4,7 +4,7 @@ require 'stripe'
 require 'highline/import'
 
 desc 'Import data from Procourse Memberships'
-task 'subscriptions:pro_con' => :environment do
+task 'subscriptions:procourse_import' => :environment do
   puts 'Begin task'
   setup_api
   puts 'Got Stripe key'
