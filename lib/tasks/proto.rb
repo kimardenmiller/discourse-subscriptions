@@ -53,7 +53,7 @@ def get_procourse_stripe_customers(starting_after:nil )
   all_customers = []
 
   loop do
-    customers = Stripe::Subscription.list({starting_after: starting_after, status: 'active'})
+    customers = Stripe::Customer.list({starting_after: starting_after})
 
     all_customers += customers[:data]
 
@@ -66,7 +66,87 @@ def get_procourse_stripe_customers(starting_after:nil )
   all_customers
 end
 
+def import_procourse_products(products)
+  puts 'Importing Procourse products'
+  # puts products.join(", ")
+
+  product_ids = []
+  products.each do |product|
+    puts "Adding for external_id #{product[:id]} ..."
+    product_ids << product[:id]
+
+    # if DiscourseSubscriptions::Product.find_by(external_id: product[:id]).blank?
+      ## DiscourseSubscriptions::Product.create(external_id: product[:id])
+      # puts "DiscourseSubscriptions::Product.create(external_id: #{product[:id]})"
+    # else
+    #   puts "Product already exists"
+    # end
+  end
+  product_ids
+end
+
+def import_subscriptions(product_ids)
+  puts 'Importing Procourse subscriptions'
+
+  all_customers = get_procourse_stripe_customers
+  puts 'Total available Stripe Customers: ' + all_customers.length.to_s
+  puts "first customer id:" + all_customers[0][:description]
+
+  all_subscriptions = get_procourse_stripe_subs
+  puts 'Total Active Procourse Subscriptions available: ' + all_subscriptions.length.to_s
+
+  subscriptions_for_products = all_subscriptions.select { |sub| product_ids.include?(sub[:items][:data][0][:price][:product]) }
+  puts 'Total Subscriptions matching Products to Import: ' + subscriptions_for_products.length.to_s
+
+  subscriptions_for_products.each do |subscription|
+    product_id = subscription[:items][:data][0][:plan][:product]
+    customer_id = subscription[:customer]
+    subscription_id = subscription[:id]
+    customer = all_customers.select { |cust| cust[:id] == customer_id }
+    user_id = customer[0][:description].to_i
+
+    if product_id && customer_id && subscription_id
+      # puts product_id, customer_id, subscription_id, user_id
+      # customer = DiscourseSubscriptions::Customer.find_by(user_id: user_id, customer_id: customer_id, product_id: product_id)
+
+      # if customer.nil? && user_id && user_id > 0
+        # customer = DiscourseSubscriptions::Customer.create(
+        #   user_id: user_id,
+        #   customer_id: customer_id,
+        #   product_id: product_id
+        # )
+        # puts "customer = DiscourseSubscriptions::Customer.create(user_id: #{user_id}, customer_id: #{customer_id}, product_id: #{product_id})"
+      # end
+
+      # if customer
+      #   if DiscourseSubscriptions::Subscription.find_by(customer_id: customer.id, external_id: subscription_id).blank?
+          # DiscourseSubscriptions::Subscription.create(
+          #   customer_id: customer.id,
+          #   external_id: subscription_id
+          # )
+          # puts "DiscourseSubscriptions::Subscription.create(customer_id: #{customer.id}, external_id: #{subscription_id})"
+        # end
+      # end
+    end
+  end
+end
+
+
 setup_api
+
+all_products = get_procourse_stripe_products
+puts 'Total Active Procourse Products available: ' + all_products.length.to_s
+
+products_to_import = []
+
+all_products.each do |product|
+  confirm_import = ask("Do you wish to import product #{product[:name]} (id: #{product[:id]}): (y/N)")
+  next if confirm_import.downcase != 'y'
+  products_to_import << product
+end
+
+product_ids = import_procourse_products(products_to_import)
+import_subscriptions(product_ids)
 
 # customers = Stripe::Customer.list
 # puts "customers first 5"
@@ -118,20 +198,11 @@ setup_api
 #   p sub[:id].to_s
 # end
 
-all_subscriptions = get_procourse_stripe_subs
-puts 'Total Active Subscriptions to Import: ' + all_subscriptions.length.to_s
-# p all_subscriptions[0][:items][:data][0][:price][:product]
 
-all_products = get_procourse_stripe_products
-puts 'Total Active Products to Import: ' + all_products.length.to_s
 
-all_customers = get_procourse_stripe_customers
-puts 'Total Active Customers to Import: ' + all_customers.length.to_s
 
-product_ids = %w[prod_FuKoqUHCNs49km prod_FuKoqUHCNs49km_xyz]
-puts product_ids.include?(all_subscriptions[0][:items][:data][0][:price][:product])
-# product_ids = [{items: 'prod_FuKoqUHCNs49km'}]
-# subscriptions_for_products = all_subscriptions[:data].select { |sub| product_ids.include?(sub) }
-subscriptions_for_products = all_subscriptions.select { |sub| product_ids.include?(sub[:items][:data][0][:price][:product]) }
-puts 'subscriptions_for_products to Import: ' + subscriptions_for_products.length.to_s
+# puts product_ids.include?(all_subscriptions[0][:items][:data][0][:price][:product])
+
 # puts subscriptions_for_products
+
+

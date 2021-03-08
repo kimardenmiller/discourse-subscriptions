@@ -8,7 +8,7 @@ task 'subscriptions:procourse_import' => :environment do
   puts 'Begin task'
   setup_api
   puts 'Got Stripe key'
-  products = get_stripe_prod
+  products = get_procourse_stripe_products
   puts 'Got products'
   products_to_import = []
 
@@ -20,18 +20,18 @@ task 'subscriptions:procourse_import' => :environment do
     puts products_to_import.join(", ")
   end
 
-  import_prod(products_to_import)
+  import_procourse_products(products_to_import)
   puts 'Done importing products'
-  import_subs
+  import_procourse_subs
 end
 
-def get_stripe_prod
+def get_procourse_stripe_products
   # todo needs paganation to get more than default 10
   puts 'Getting products from Stripe API'
   Stripe::Product.list
 end
 
-def import_prod(products)
+def import_procourse_products(products)
   puts 'Importing products:'
   puts products.join(", ")
   products.each do |product|
@@ -45,8 +45,8 @@ def import_prod(products)
   end
 end
 
-def import_subs
-  puts 'Importing subscriptions'
+def import_procourse_subs
+  puts 'Importing Procourse  subscriptions'
   product_ids = DiscourseSubscriptions::Product.all.pluck(:external_id)
   # todo needs paganation to get more than default 10
   customers = Stripe::Customer.list
