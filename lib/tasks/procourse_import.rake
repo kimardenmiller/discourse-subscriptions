@@ -5,11 +5,9 @@ require 'highline/import'
 
 desc 'Import data from Procourse Memberships'
 task 'subscriptions:procourse_import' => :environment do
-  puts 'Begin task'
   setup_api
-  puts 'Got Stripe key'
+  puts ' Stripe sign on complete'
   products = get_procourse_stripe_products
-  puts 'Got products'
   products_to_import = []
 
   products.each do |product|
