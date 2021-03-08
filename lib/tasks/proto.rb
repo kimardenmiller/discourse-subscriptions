@@ -10,9 +10,23 @@ require 'highline/import'
   # setup_api
 # end
 
-def get_stripe_prod
+def get_procourse_stripe_products(starting_after:nil )
   puts 'Getting products from Stripe API'
-  Stripe::Product.list
+
+  all_products = []
+
+  loop do
+    products = Stripe::Product.list({type: 'service', starting_after: starting_after, active: true })
+    all_products += products[:data]
+
+    break if products[:has_more] == false
+
+    starting_after = products[:data].last["id"]
+
+  end
+
+  all_products
+
 end
 
 def setup_api
@@ -30,7 +44,7 @@ customers = Stripe::Customer.list
 # puts "customers :data first 5"
 # puts customers[:data].to_a[0..0]
 
-cust_ret = Stripe::Customer.retrieve('cus_J3PTQx9xS8HWnd')
+# cust_ret = Stripe::Customer.retrieve('cus_J3PTQx9xS8HWnd')
 # p "customer"
 # p cust_ret[:description].to_i
 # p cust_ret[:metadata]
@@ -48,8 +62,8 @@ end
 # user_id = customers[:data].find('cus_J3PTQx9xS8HWnd')[:description]
 # puts user_id
 
-subscriptions = Stripe::Subscription.list({status: 'active'})
-stripe_subs = subscriptions[:data]
+# subscriptions = Stripe::Subscription.list({status: 'active'})
+# stripe_subs = subscriptions[:data]
 # p stripe_subs.length
 # puts stripe_subs[0][:customer]
 
@@ -65,8 +79,9 @@ stripe_subs = subscriptions[:data]
   # p sub[:id]
 # end
 
-def get_all_subscriptions(starting_after:nil )
-  
+def get_procourse_stripe_subs(starting_after:nil )
+  puts 'Getting Procourse Subscriptons from Stripe API'
+
   all_subscriptions = []
 
   loop do
@@ -84,7 +99,7 @@ def get_all_subscriptions(starting_after:nil )
   all_subscriptions
 end
 
-all_subscriptions = get_all_subscriptions
+all_subscriptions = get_procourse_stripe_subs
 
 # p 'all_subscriptions'
 # all_subscriptions.each do |sub|
@@ -92,3 +107,7 @@ all_subscriptions = get_all_subscriptions
 # end
 
 puts 'Total Active Subscriptions to Import: ' + all_subscriptions.length.to_s
+
+all_products = get_procourse_stripe_products
+puts 'Total Active Products to Import: ' + all_products.length.to_s
+# puts Stripe::Product.retrieve('prod_FuKoqUHCNs49km')
