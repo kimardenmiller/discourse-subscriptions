@@ -16,7 +16,7 @@ task 'subscriptions:procourse_import' => :environment do
   end
 
   import_procourse_products(products_to_import)
-  import_subscriptions
+  run_import
 end
 
 def get_procourse_stripe_products(starting_after:nil )
@@ -91,8 +91,8 @@ def import_procourse_products(products)
   end
 end
 
-def import_subscriptions
-  puts 'Importing Procourse  subscriptions'
+def run_import
+  puts 'Importing Procourse subscriptions'
   product_ids = DiscourseSubscriptions::Product.all.pluck(:external_id)
 
   all_customers = get_procourse_stripe_customers
