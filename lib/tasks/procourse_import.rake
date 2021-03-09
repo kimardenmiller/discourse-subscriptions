@@ -7,15 +7,15 @@ desc 'Import data from Procourse Memberships'
 task 'subscriptions:procourse_import' => :environment do
   setup_api
   products = get_procourse_stripe_products
-  products_to_import = []
+  strip_products_to_import = []
 
   products.each do |product|
     confirm_import = ask("Do you wish to import product #{product[:name]} (id: #{product[:id]}): (y/N)")
     next if confirm_import.downcase != 'y'
-    products_to_import << product
+    strip_products_to_import << product
   end
 
-  import_procourse_products(products_to_import)
+  import_procourse_products(strip_products_to_import)
   run_import
 end
 
