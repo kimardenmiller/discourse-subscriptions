@@ -116,20 +116,20 @@ def run_import
       customer = DiscourseSubscriptions::Customer.find_by(user_id: user_id, customer_id: customer_id, product_id: product_id)
 
       if customer.nil? && user_id && user_id > 0
-        # customer = DiscourseSubscriptions::Customer.create(
-        #   user_id: user_id,
-        #   customer_id: customer_id,
-        #   product_id: product_id
-        # )
+        customer = DiscourseSubscriptions::Customer.create(
+          user_id: user_id,
+          customer_id: customer_id,
+          product_id: product_id
+        )
         puts "customer = DiscourseSubscriptions::Customer.create(user_id: #{user_id}, customer_id: #{customer_id}, product_id: #{product_id})"
       end
 
       if customer
         if DiscourseSubscriptions::Subscription.find_by(customer_id: customer.id, external_id: subscription_id).blank?
-          # DiscourseSubscriptions::Subscription.create(
-          #   customer_id: customer.id,
-          #   external_id: subscription_id
-          # )
+          DiscourseSubscriptions::Subscription.create(
+            customer_id: customer.id,
+            external_id: subscription_id
+          )
           puts "DiscourseSubscriptions::Subscription.create(customer_id: #{customer.id}, external_id: #{subscription_id})"
         end
       end
