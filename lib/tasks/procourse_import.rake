@@ -4,7 +4,8 @@ require 'stripe'
 require 'highline/import'
 
 desc 'Import data from Procourse Memberships'
-task 'subscriptions:procourse_import' => :environment do
+task 'procourse:subscriptions_import' => :environment do
+# task 'subscriptions:procourse_import' => :environment do
   setup_api
   products = get_procourse_stripe_products
   strip_products_to_import = []
@@ -39,7 +40,7 @@ def get_procourse_stripe_products(starting_after:nil )
 end
 
 def get_procourse_stripe_subs(starting_after:nil )
-  puts 'Getting Procourse Subscriptons from Stripe API'
+  puts 'Getting Procourse Subscriptions from Stripe API'
 
   all_subscriptions = []
 
@@ -96,8 +97,7 @@ def run_import
   product_ids = DiscourseSubscriptions::Product.all.pluck(:external_id)
 
   all_customers = get_procourse_stripe_customers
-  puts 'Total available Stripe Customers: ' + all_customers.length.to_s
-  puts "first customer id:" + all_customers[0][:description]
+  puts 'Total available Stripe Customers: ' + all_customers.length.to_s + ', the first of which is customer id: ' + all_customers[0][:description]
 
   all_subscriptions = get_procourse_stripe_subs
   puts 'Total Active Procourse Subscriptions available: ' + all_subscriptions.length.to_s
@@ -109,14 +109,14 @@ def run_import
     product_id = subscription[:items][:data][0][:plan][:product]
     customer_id = subscription[:customer]
     subscription_id = subscription[:id]
-    customer = all_customers.select { |cust| cust[:id] == customer_id }
-    user_id = customer[0][:description].to_i
+    stripe_customer = all_customers.select { |cust| cust[:id] == customer_id }
+    user_id = stripe_customer[0][:description].to_i
 
     if product_id && customer_id && subscription_id && user_id == 25
-      customer = DiscourseSubscriptions::Customer.find_by(user_id: user_id, customer_id: customer_id, product_id: product_id)
+      subscriptions_customer = DiscourseSubscriptions::Customer.find_by(user_id: user_id, customer_id: customer_id, product_id: product_id)
 
-      if customer.nil? && user_id && user_id > 0
-        customer = DiscourseSubscriptions::Customer.create(
+      if subscriptions_customer.nil? && user_id && user_id > 0
+        subscriptions_customer = DiscourseSubscriptions::Customer.create(
           user_id: user_id,
           customer_id: customer_id,
           product_id: product_id
@@ -124,13 +124,13 @@ def run_import
         puts "customer = DiscourseSubscriptions::Customer.create(user_id: #{user_id}, customer_id: #{customer_id}, product_id: #{product_id})"
       end
 
-      if customer
-        if DiscourseSubscriptions::Subscription.find_by(customer_id: customer.id, external_id: subscription_id).blank?
+      if subscriptions_customer
+        if DiscourseSubscriptions::Subscription.find_by(customer_id: subscriptions_customer.id, external_id: subscription_id).blank?
           DiscourseSubscriptions::Subscription.create(
-            customer_id: customer.id,
+            customer_id: subscriptions_customer.id,
             external_id: subscription_id
           )
-          puts "DiscourseSubscriptions::Subscription.create(customer_id: #{customer.id}, external_id: #{subscription_id})"
+          puts "DiscourseSubscriptions::Subscription.create(customer_id: #{subscriptions_customer.id}, external_id: #{subscription_id})"
         end
       end
     end
