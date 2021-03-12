@@ -139,7 +139,11 @@ def run_import
         Stripe::Subscription.update(subscription_id,
           {metadata: { user_id: user_id, username: user.username }})
         # {metadata: { user_id: current_user.id, username: current_user.username_lower }})
-        
+
+        index_customer = DiscourseSubscriptions::Customer.where(user_id: user_id)
+        customer_ids = index_customer.map { |c| c.id }
+        subscription_ids = DiscourseSubscriptions::Subscription.where("customer_id in (?)", customer_ids).pluck(:external_id)
+        puts subscription_ids
       end
     end
   end
