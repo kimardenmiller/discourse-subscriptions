@@ -134,12 +134,12 @@ def run_import
         end
 
         user = User.find(user_id)
-        puts user.username
+        puts 'User.find(user_id): ' + user.username
 
         # Stripe::Subscription.update(subscription_id,
         #   {metadata: { user_id: user_id, username: 'ryan_hyer' }})
         # {metadata: { user_id: current_user.id, username: current_user.username_lower }})
-
+        K
       end
     end
   end
