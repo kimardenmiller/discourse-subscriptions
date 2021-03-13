@@ -144,6 +144,7 @@ def run_import
         customer_ids = index_customer.map { |c| c.id }
         subscription_ids = DiscourseSubscriptions::Subscription.where("customer_id in (?)", customer_ids).pluck(:external_id)
         puts subscription_ids
+        
       end
     end
   end
