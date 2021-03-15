@@ -16,7 +16,7 @@ def run_index
   current_user = User.find(25)
 
   index_customer = DiscourseSubscriptions::Customer.where(user_id: current_user.id)
-  puts 'index_customer: ' + index_customer
+  # puts 'index_customer: ' + index_customer
   customer_ids = index_customer.map { |c| c.id } if index_customer
   puts 'customer_ids: ' + customer_ids
   subscription_ids = DiscourseSubscriptions::Subscription.where("customer_id in (?)", customer_ids).pluck(:external_id) if customer_ids
