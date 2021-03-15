@@ -16,8 +16,6 @@ def run_index
   current_user = User.find(25)
 
   index_customer = DiscourseSubscriptions::Customer.where(user_id: current_user.id)
-  puts 'index_customer: '
-  puts index_customer
   customer_ids = index_customer.map { |c| c.id } if index_customer
   puts 'customer_ids: '
   puts customer_ids
@@ -45,6 +43,8 @@ def run_index
     subscriptions = customers[:data].map do |sub_customer|
       sub_customer[:subscriptions][:data]
     end.flatten(1)
+    puts 'customers[:data].map'
+    puts subscriptions
 
     subscriptions = subscriptions.select { |sub| subscription_ids.include?(sub[:id]) }
     puts 'subscriptions.select'
