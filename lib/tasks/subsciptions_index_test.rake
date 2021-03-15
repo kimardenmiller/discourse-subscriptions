@@ -32,23 +32,34 @@ def run_index
       expand: ['data.product'],
       limit: 100
     )
+    puts 'plans'
+    puts plans
 
     customers = Stripe::Customer.list(
       email: current_user.email,
       expand: ['data.subscriptions']
     )
+    puts 'customers'
+    puts customers
 
     subscriptions = customers[:data].map do |sub_customer|
       sub_customer[:subscriptions][:data]
     end.flatten(1)
 
     subscriptions = subscriptions.select { |sub| subscription_ids.include?(sub[:id]) }
+    puts 'subscriptions.select'
+    puts subscriptions
 
     subscriptions.map! do |subscription|
       plan = plans[:data].find { |p| p[:id] == subscription[:items][:data][0][:price][:id] }
+      puts 'subscriptions.map subscription'
+      puts subscription
       subscription.to_h.except!(:plan)
+      puts 'except'
+      puts subscription
       subscription.to_h.merge(plan: plan, product: plan[:product].to_h.slice(:id, :name))
     end
+
   end
 
   puts subscriptions
