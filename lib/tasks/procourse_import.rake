@@ -72,7 +72,7 @@ def import_procourse_products(products)
   products.each do |product|
     puts "Looking for external_id #{product[:id]} ..."
     if DiscourseSubscriptions::Product.find_by(external_id: product[:id]).blank?
-      ## DiscourseSubscriptions::Product.create(external_id: product[:id])
+      DiscourseSubscriptions::Product.create(external_id: product[:id])
       puts "Subscriptons Product external_id: #{product[:id]} CREATED"
     else
       puts "Subscriptons Product external_id: #{product[:id]} already exists"
@@ -100,7 +100,7 @@ def run_import
     stripe_customer = all_customers.select { |cust| cust[:id] == customer_id }
     user_id = stripe_customer[0][:description].to_i
 
-    if product_id && customer_id && subscription_id && user_id == 25  # todo first 10, then remove signal
+    if product_id && customer_id && subscription_id && user_id < 5  # todo remove filter
       subscriptions_customer = DiscourseSubscriptions::Customer.find_by(user_id: user_id, customer_id: customer_id, product_id: product_id)
 
       if subscriptions_customer.nil? && user_id && user_id > 0
@@ -125,24 +125,17 @@ def run_import
           puts "Discourse Subscription customer_id: #{subscriptions_customer.id}, external_id: #{subscription_id}) already exists"
         end
 
+        # Update Stripe data for use with discourse_subscriptions
         discourse_user = User.find(user_id)
         puts "Discourse User: #{discourse_user.username_lower} found"
 
         updated_subsciption = Stripe::Subscription.update(subscription_id,
                                                           {metadata: { user_id: user_id,
                                                                        username: discourse_user.username_lower }})
-        # {metadata: { user_id: current_user.id, username: current_user.username_lower }})
-        # {metadata: { user_id: user_id, username: user.username }})
-        puts "Stripe Subscription metadata: #{updated_subsciption[:id]}, #{updated_subsciption[:metadata]} UPDATED"
+        puts "Stripe Subscription: #{updated_subsciption[:id]}, metadata: #{updated_subsciption[:metadata]} UPDATED"
 
         updated_customer = Stripe::Customer.update(customer_id, {email: discourse_user.email})
-        puts "Stripe Customer: #{updated_customer[:id]}, #{updated_customer[:email]} UPDATED"
-
-
-        # index_customer = DiscourseSubscriptions::Customer.where(user_id: user_id)
-        # customer_ids = index_customer.map { |c| c.id }
-        # subscription_ids = DiscourseSubscriptions::Subscription.where("customer_id in (?)", customer_ids).pluck(:external_id)
-        # puts subscription_ids
+        puts "Stripe Customer: #{updated_customer[:id]}, email: #{updated_customer[:email]} UPDATED"
         
       end
     end
