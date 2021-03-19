@@ -126,17 +126,25 @@ def run_import
         end
 
         # Update Stripe data for use with discourse_subscriptions
-        discourse_user = User.find(user_id)
-        puts "Discourse User: #{discourse_user.username_lower} found for Strip metadata update ..."
+        discourse_user = User.find_by_id(user_id)
 
-        updated_subsciption = Stripe::Subscription.update(subscription_id,
-                                                          {metadata: { user_id: user_id,
-                                                                       username: discourse_user.username_lower }})
-        puts "Stripe Subscription: #{updated_subsciption[:id]}, metadata: #{updated_subsciption[:metadata]} UPDATED"
+        if discourse_user
 
-        updated_customer = Stripe::Customer.update(customer_id, {email: discourse_user.email})
-        puts "Stripe Customer: #{updated_customer[:id]}, email: #{updated_customer[:email]} UPDATED"
-        
+          puts "Discourse User: #{discourse_user.username_lower} found for Strip metadata update ..."
+
+          updated_subsciption = Stripe::Subscription.update(subscription_id,
+                                                            {metadata: { user_id: user_id,
+                                                                         username: discourse_user.username_lower }})
+          puts "Stripe Subscription: #{updated_subsciption[:id]}, metadata: #{updated_subsciption[:metadata]} UPDATED"
+
+          updated_customer = Stripe::Customer.update(customer_id, {email: discourse_user.email})
+          puts "Stripe Customer: #{updated_customer[:id]}, email: #{updated_customer[:email]} UPDATED"
+
+        else
+
+          puts "Discourse User #{user_id} not found"
+
+        end
       end
     end
   end
