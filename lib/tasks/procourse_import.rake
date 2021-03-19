@@ -100,7 +100,7 @@ def run_import
     stripe_customer = all_customers.select { |cust| cust[:id] == customer_id }
     user_id = stripe_customer[0][:description].to_i
 
-    if product_id && customer_id && subscription_id && user_id < 20  # todo remove filter
+    if product_id && customer_id && subscription_id
       subscriptions_customer = DiscourseSubscriptions::Customer.find_by(user_id: user_id, customer_id: customer_id, product_id: product_id)
 
       if subscriptions_customer.nil? && user_id && user_id > 0
